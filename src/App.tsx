@@ -11,6 +11,7 @@ import {
   type AdventureStop,
   type AvatarId,
   type LevelId,
+  type SeriesId,
 } from "./data/pontDeSalarsData";
 import type {
   CompletedStopRecord,
@@ -26,9 +27,30 @@ function loadSavedSession(): FamilySession | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as FamilySession;
+    const parsed = JSON.parse(raw) as Partial<FamilySession>;
     if (!parsed || typeof parsed.familyName !== "string" || !parsed.teamId) return null;
-    return parsed;
+    const levelId: LevelId =
+      parsed.levelId === "petits" ||
+      parsed.levelId === "aventuriers" ||
+      parsed.levelId === "grands" ||
+      parsed.levelId === "experts"
+        ? parsed.levelId
+        : "aventuriers";
+    return {
+      teamId: parsed.teamId,
+      familyName: parsed.familyName,
+      avatarId:
+        parsed.avatarId === "chouette" || parsed.avatarId === "loutre"
+          ? parsed.avatarId
+          : "renard",
+      levelId,
+      seriesId: parsed.seriesId === "pimentee" ? "pimentee" : "decouverte",
+      playStyle: parsed.playStyle === "commerces" ? "commerces" : "libre",
+      freeOrder: Boolean(parsed.freeOrder),
+      streak: typeof parsed.streak === "number" && parsed.streak >= 0 ? parsed.streak : 0,
+      startedAt: parsed.startedAt || new Date().toISOString(),
+      completedStops: parsed.completedStops ?? {},
+    };
   } catch {
     return null;
   }
@@ -99,6 +121,7 @@ export function App() {
           familyName: nextSession.familyName,
           avatarId: nextSession.avatarId,
           levelId: nextSession.levelId,
+          seriesId: nextSession.seriesId,
           treasuresFound,
           stars,
           score,
@@ -118,6 +141,7 @@ export function App() {
     familyName: string;
     avatarId: AvatarId;
     levelId: LevelId;
+    seriesId: SeriesId;
     playStyle: PlayStyle;
   }) => {
     const next: FamilySession = {
@@ -125,8 +149,10 @@ export function App() {
       familyName: config.familyName,
       avatarId: config.avatarId,
       levelId: config.levelId,
+      seriesId: config.seriesId,
       playStyle: config.playStyle,
       freeOrder: config.playStyle === "commerces",
+      streak: 0,
       startedAt: new Date().toISOString(),
       completedStops: {},
     };
@@ -134,14 +160,20 @@ export function App() {
     setActiveTab("map");
   };
 
-  const handleCompleteStop = (record: CompletedStopRecord) => {
+  const handleCompleteStop = (record: CompletedStopRecord, cleanFirstTry: boolean) => {
     setSession((prev) => {
       if (!prev) return prev;
       const existing = prev.completedStops[record.stopId];
       const chosenRecord =
         existing && existing.pointsEarned >= record.pointsEarned ? existing : record;
+      const nextStreak = existing
+        ? prev.streak ?? 0
+        : cleanFirstTry
+          ? (prev.streak ?? 0) + 1
+          : 0;
       const updated: FamilySession = {
         ...prev,
+        streak: nextStreak,
         completedStops: {
           ...prev.completedStops,
           [record.stopId]: chosenRecord,
@@ -268,7 +300,9 @@ export function App() {
           stop={activeStop}
           avatarId={session.avatarId}
           levelId={session.levelId}
+          seriesId={session.seriesId ?? "decouverte"}
           playStyle={session.playStyle}
+          currentStreak={session.streak ?? 0}
           existingRecord={session.completedStops[activeStop.id]}
           muted={muted}
           mobileShell={mobileShell}

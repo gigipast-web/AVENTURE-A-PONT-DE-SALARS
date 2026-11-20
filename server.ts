@@ -34,7 +34,8 @@ export interface LeaderboardEntry {
   id: string;
   familyName: string;
   avatarId: "renard" | "chouette" | "loutre";
-  levelId: "petits" | "aventuriers" | "grands";
+  levelId: "petits" | "aventuriers" | "grands" | "experts";
+  seriesId?: "decouverte" | "pimentee";
   treasuresFound: number;
   stars: number;
   score: number;
@@ -278,14 +279,20 @@ export async function startServer(customPort?: number) {
 
           const levelRaw = sanitizePlainText(raw.levelId, 16, true);
           const levelId: LeaderboardEntry["levelId"] =
-            levelRaw === "petits" || levelRaw === "grands" ? levelRaw : "aventuriers";
+            levelRaw === "petits" || levelRaw === "grands" || levelRaw === "experts"
+              ? levelRaw
+              : "aventuriers";
+
+          const seriesRaw = sanitizePlainText(raw.seriesId, 16, true);
+          const seriesId: LeaderboardEntry["seriesId"] =
+            seriesRaw === "pimentee" ? "pimentee" : "decouverte";
 
           const treasuresFound = Math.max(
             0,
             Math.min(10, Math.round(Number(raw.treasuresFound) || 0)),
           );
           const stars = Math.max(0, Math.min(30, Math.round(Number(raw.stars) || 0)));
-          const score = Math.max(0, Math.min(3000, Math.round(Number(raw.score) || 0)));
+          const score = Math.max(0, Math.min(5000, Math.round(Number(raw.score) || 0)));
           const completed = treasuresFound >= 10 || Boolean(raw.completed);
 
           const entries = [...loadLeaderboard()];
@@ -295,6 +302,7 @@ export async function startServer(customPort?: number) {
             familyName,
             avatarId,
             levelId,
+            seriesId,
             treasuresFound,
             stars,
             score,

@@ -5,6 +5,7 @@ import {
   AVATARS,
   LEVELS,
   MAP_IMAGE,
+  QUESTION_SERIES,
   type AdventureStop,
 } from "../data/pontDeSalarsData";
 import type { FamilySession } from "../types/game";
@@ -28,6 +29,9 @@ export function AdventureMapView({
 
   const avatar = AVATARS.find((a) => a.id === session.avatarId) ?? AVATARS[0];
   const level = LEVELS.find((l) => l.id === session.levelId) ?? LEVELS[1];
+  const series =
+    QUESTION_SERIES.find((s) => s.id === (session.seriesId ?? "decouverte")) ?? QUESTION_SERIES[0];
+  const activeStreak = session.streak ?? 0;
 
   const completedCount = Object.keys(session.completedStops).length;
   const totalStars = Object.values(session.completedStops).reduce((acc, r) => acc + r.stars, 0);
@@ -60,7 +64,10 @@ export function AdventureMapView({
             className="h-11 w-11 shrink-0 rounded-xl border border-[#18261E]/10 object-cover"
           />
           <div className="min-w-0">
-            <p className="truncate text-[11px] text-[#526158]">{level.title}</p>
+            <p className="truncate text-[11px] text-[#526158]">
+              {level.shortTitle} · {series.id === "pimentee" ? "Défis Pimentés" : "Découverte"}
+              {activeStreak >= 2 ? ` · Série ×${activeStreak}` : ""}
+            </p>
             <h1 className="font-display truncate text-base font-bold text-[#18261E]">
               {session.familyName}
             </h1>
@@ -210,7 +217,7 @@ export function AdventureMapView({
                 {nextStop.name}
               </h2>
               <p className="mt-1.5 text-xs leading-relaxed text-[#526158]">
-                {nextStop.storyIntro}
+                {series.id === "pimentee" ? nextStop.spicyIntro : nextStop.storyIntro}
               </p>
               <button
                 type="button"

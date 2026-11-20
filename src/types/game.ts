@@ -1,4 +1,4 @@
-import type { AvatarId, LevelId } from "../data/pontDeSalarsData";
+import type { AvatarId, LevelId, SeriesId } from "../data/pontDeSalarsData";
 
 export type ScreenTab = "setup" | "map" | "treasures" | "leaderboard" | "diploma";
 
@@ -10,6 +10,8 @@ export interface CompletedStopRecord {
   pointsEarned: number;
   usedHint: boolean;
   vitrineBonus: boolean;
+  speedBonus?: boolean;
+  streakBonus?: number;
   solvedAt: string;
 }
 
@@ -18,8 +20,10 @@ export interface FamilySession {
   familyName: string;
   avatarId: AvatarId;
   levelId: LevelId;
+  seriesId: SeriesId;
   playStyle: PlayStyle;
   freeOrder: boolean;
+  streak: number;
   startedAt: string;
   completedStops: Record<string, CompletedStopRecord>;
 }
@@ -29,6 +33,7 @@ export interface LeaderboardEntry {
   familyName: string;
   avatarId: AvatarId;
   levelId: LevelId;
+  seriesId?: SeriesId;
   treasuresFound: number;
   stars: number;
   score: number;

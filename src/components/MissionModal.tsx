@@ -1,32 +1,52 @@
-import { useState } from "react";
-import { Check, Gem, HelpCircle, QrCode, Sparkles, Star, Store, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Check,
+  Flame,
+  Gem,
+  HelpCircle,
+  QrCode,
+  Sparkles,
+  Star,
+  Store,
+  Timer,
+  X,
+} from "lucide-react";
 import {
   AVATARS,
   LEVELS,
+  getStopRiddle,
   type AdventureStop,
   type AvatarId,
   type LevelId,
+  type SeriesId,
 } from "../data/pontDeSalarsData";
 import type { CompletedStopRecord, PlayStyle } from "../types/game";
 import { playChime } from "../utils/soundFx";
+
+const SPEED_BONUS_SECONDS = 25;
+const SPEED_BONUS_POINTS = 20;
 
 interface MissionModalProps {
   stop: AdventureStop;
   avatarId: AvatarId;
   levelId: LevelId;
+  seriesId: SeriesId;
   playStyle: PlayStyle;
+  currentStreak: number;
   existingRecord?: CompletedStopRecord;
   muted: boolean;
   mobileShell: boolean;
   onClose: () => void;
-  onComplete: (record: CompletedStopRecord) => void;
+  onComplete: (record: CompletedStopRecord, cleanFirstTry: boolean) => void;
 }
 
 export function MissionModal({
   stop,
   avatarId,
   levelId,
+  seriesId,
   playStyle,
+  currentStreak,
   existingRecord,
   muted,
   mobileShell,
@@ -35,7 +55,8 @@ export function MissionModal({
 }: MissionModalProps) {
   const avatar = AVATARS.find((a) => a.id === avatarId) ?? AVATARS[0];
   const level = LEVELS.find((l) => l.id === levelId) ?? LEVELS[1];
-  const riddle = stop.riddles[levelId];
+  const riddle = getStopRiddle(stop, seriesId, levelId);
+  const hasSpicyChrono = seriesId === "pimentee" || levelId === "experts";
 
   const [selectedOption, setSelectedOption] = useState<number | null>(
     existingRecord ? riddle.correctIndex : null,
@@ -43,6 +64,9 @@ export function MissionModal({
   const [showHint, setShowHint] = useState(false);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [feedbackError, setFeedbackError] = useState("");
+  const [secondsLeft, setSecondsLeft] = useState<number>(
+    existingRecord ? 0 : SPEED_BONUS_SECONDS,
+  );
   const [vitrineInput, setVitrineInput] = useState(
     existingRecord?.vitrineBonus && stop.vitrineCode ? stop.vitrineCode : "",
   );
@@ -51,6 +75,17 @@ export function MissionModal({
   const [solvedRecord, setSolvedRecord] = useState<CompletedStopRecord | null>(
     existingRecord ?? null,
   );
+
+  useEffect(() => {
+    if (!hasSpicyChrono || solvedRecord) return;
+    if (secondsLeft <= 0) return;
+
+    const timerId = window.setInterval(() => {
+      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => window.clearInterval(timerId);
+  }, [hasSpicyChrono, solvedRecord, secondsLeft]);
 
   const handleCheckVitrine = () => {
     if (!stop.vitrineCode) return;
@@ -72,23 +107,32 @@ export function MissionModal({
     }
 
     if (selectedOption === riddle.correctIndex) {
+      const cleanFirstTry = !showHint && wrongAttempts === 0;
       const stars = Math.max(1, 3 - (showHint ? 1 : 0) - (wrongAttempts > 0 ? 1 : 0));
       const basePoints = 80 + stars * 20;
       const weightedPoints = Math.round(basePoints * level.pointMultiplier);
-      const bonus = vitrineVerified ? 40 : 0;
+      const vitrineBonusPts = vitrineVerified ? 40 : 0;
+      const earnedSpeedBonus = hasSpicyChrono && secondsLeft > 0 && !showHint;
+      const speedBonusPts = earnedSpeedBonus ? SPEED_BONUS_POINTS : 0;
+
+      const nextStreak = cleanFirstTry ? currentStreak + 1 : 0;
+      const streakBonusPts =
+        cleanFirstTry && nextStreak >= 2 ? Math.min(45, (nextStreak - 1) * 15) : 0;
 
       const record: CompletedStopRecord = {
         stopId: stop.id,
         stars,
-        pointsEarned: weightedPoints + bonus,
+        pointsEarned: weightedPoints + vitrineBonusPts + speedBonusPts + streakBonusPts,
         usedHint: showHint,
         vitrineBonus: vitrineVerified,
+        speedBonus: earnedSpeedBonus,
+        streakBonus: streakBonusPts,
         solvedAt: new Date().toISOString(),
       };
       playChime(stop.order === 10 ? "victory" : "success", muted);
       setFeedbackError("");
       setSolvedRecord(record);
-      onComplete(record);
+      onComplete(record, cleanFirstTry);
     } else {
       playChime("error", muted);
       setWrongAttempts((n) => n + 1);
@@ -98,11 +142,12 @@ export function MissionModal({
     }
   };
 
+  const introText = seriesId === "pimentee" ? stop.spicyIntro : stop.storyIntro;
+  const chronoPercent = Math.round((secondsLeft / SPEED_BONUS_SECONDS) * 100);
+
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-end justify-center bg-[#18261E]/55 backdrop-blur-xs ${
-        mobileShell ? "p-0 sm:items-center sm:p-4" : "p-0 sm:items-center sm:p-4"
-      }`}
+      className="fixed inset-0 z-50 flex items-end justify-center bg-[#18261E]/55 p-0 backdrop-blur-xs sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="mission-modal-title"
@@ -116,8 +161,13 @@ export function MissionModal({
 
         <div className="flex items-start justify-between gap-3 border-b border-[#18261E]/10 pb-3.5">
           <div>
-            <p className="text-xs font-semibold text-[#1D6B4A]">
-              Étape {String(stop.order).padStart(2, "0")} · {stop.categoryLabel}
+            <p
+              className={`text-xs font-semibold ${
+                seriesId === "pimentee" ? "text-[#B45309]" : "text-[#1D6B4A]"
+              }`}
+            >
+              Étape {String(stop.order).padStart(2, "0")} ·{" "}
+              {riddle.twistLabel ? riddle.twistLabel : stop.categoryLabel}
             </p>
             <h2
               id="mission-modal-title"
@@ -145,9 +195,43 @@ export function MissionModal({
           />
           <div>
             <p className="text-xs font-semibold text-[#18261E]">{avatar.name}</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-[#526158]">{stop.storyIntro}</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-[#526158]">{introText}</p>
           </div>
         </div>
+
+        {hasSpicyChrono && !solvedRecord && (
+          <div className="mt-3 rounded-xl border border-[#D97706]/25 bg-[#FEF9EC] p-3">
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-[#92400E]">
+                <Timer className="h-3.5 w-3.5 text-[#D97706]" />
+                {secondsLeft > 0
+                  ? `Chrono Éclair : ${secondsLeft} s (+${SPEED_BONUS_POINTS} pts)`
+                  : "Chrono terminé · répondez à votre rythme"}
+              </span>
+              {currentStreak >= 1 && (
+                <span className="inline-flex items-center gap-1 font-semibold text-[#B45309]">
+                  <Flame className="h-3.5 w-3.5" />
+                  Série ×{currentStreak}
+                </span>
+              )}
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#D97706]/20">
+              <div
+                className="h-full rounded-full bg-[#D97706] transition-all duration-1000 ease-linear"
+                style={{ width: `${chronoPercent}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {!hasSpicyChrono && currentStreak >= 1 && !solvedRecord && (
+          <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#1D6B4A]">
+            <Flame className="h-3.5 w-3.5 text-[#D97706]" />
+            <span>
+              Série sans faute en cours : {currentStreak} étape(s) (+15 pts bonus dès la 2e)
+            </span>
+          </p>
+        )}
 
         {stop.partnerName && (
           <div className="mt-3.5 rounded-xl border border-[#18261E]/10 bg-[#F1F3EE] p-3.5">
@@ -282,6 +366,23 @@ export function MissionModal({
                 </span>
               </div>
             </div>
+
+            {(solvedRecord.speedBonus ||
+              (solvedRecord.streakBonus ?? 0) > 0 ||
+              solvedRecord.vitrineBonus) && (
+              <p className="mt-2 text-xs font-medium text-[#1D6B4A]">
+                Bonus gagnés :{" "}
+                {[
+                  solvedRecord.vitrineBonus ? "Vitrine +40" : null,
+                  solvedRecord.speedBonus ? `Chrono Éclair +${SPEED_BONUS_POINTS}` : null,
+                  (solvedRecord.streakBonus ?? 0) > 0
+                    ? `Sans faute +${solvedRecord.streakBonus}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            )}
 
             <p className="mt-2.5 text-sm leading-relaxed text-[#18261E]">{riddle.explanation}</p>
 

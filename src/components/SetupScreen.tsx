@@ -1,13 +1,25 @@
 import { useState } from "react";
-import { ArrowRight, Check, Compass, MapPin, QrCode, RotateCcw, Store } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Compass,
+  Flame,
+  MapPin,
+  QrCode,
+  RotateCcw,
+  Sparkles,
+  Store,
+} from "lucide-react";
 import {
   ADVENTURE_STOPS,
   AVATARS,
   HERO_IMAGE,
   LEVELS,
   PARTNER_SHOPS,
+  QUESTION_SERIES,
   type AvatarId,
   type LevelId,
+  type SeriesId,
 } from "../data/pontDeSalarsData";
 import type { FamilySession, PlayStyle } from "../types/game";
 
@@ -18,6 +30,7 @@ interface SetupScreenProps {
     familyName: string;
     avatarId: AvatarId;
     levelId: LevelId;
+    seriesId: SeriesId;
     playStyle: PlayStyle;
   }) => void;
   onResumeAdventure: () => void;
@@ -34,6 +47,7 @@ export function SetupScreen({
   const [familyName, setFamilyName] = useState(existingSession?.familyName ?? "");
   const [avatarId, setAvatarId] = useState<AvatarId>(existingSession?.avatarId ?? "renard");
   const [levelId, setLevelId] = useState<LevelId>(existingSession?.levelId ?? "aventuriers");
+  const [seriesId, setSeriesId] = useState<SeriesId>(existingSession?.seriesId ?? "pimentee");
   const [playStyle, setPlayStyle] = useState<PlayStyle>(existingSession?.playStyle ?? "libre");
   const [heroImgError, setHeroImgError] = useState(false);
   const [formError, setFormError] = useState("");
@@ -41,6 +55,14 @@ export function SetupScreen({
   const completedCount = existingSession
     ? Object.keys(existingSession.completedStops).length
     : 0;
+
+  const existingSeriesInfo = existingSession
+    ? QUESTION_SERIES.find((s) => s.id === (existingSession.seriesId ?? "decouverte")) ??
+      QUESTION_SERIES[0]
+    : null;
+  const existingLevelInfo = existingSession
+    ? LEVELS.find((l) => l.id === existingSession.levelId) ?? LEVELS[1]
+    : null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +76,7 @@ export function SetupScreen({
       familyName: cleaned,
       avatarId,
       levelId,
+      seriesId,
       playStyle,
     });
   };
@@ -93,7 +116,7 @@ export function SetupScreen({
         <div className={`flex flex-col justify-between ${mobileShell ? "" : "lg:order-1 lg:col-span-6"}`}>
           <div>
             <p className="text-xs font-semibold text-[#1D6B4A]">
-              Chasse au trésor en Aveyron · 10 étapes
+              Chasse au trésor en Aveyron · 2 séries · 4 niveaux
             </p>
             <h1
               className={`font-display mt-1.5 text-balance font-bold tracking-tight text-[#18261E] ${
@@ -103,25 +126,28 @@ export function SetupScreen({
               À l'aventure à Pont-de-Salars !
             </h1>
             <p className="mt-2.5 text-sm leading-relaxed text-[#526158]">
-              Le Farfadet du Viaur a caché les 10 trésors du village. En famille, suivez la carte,
-              observez les vitrines et résolvez les énigmes jusqu'aux Rousselleries.
+              Le Farfadet du Viaur a caché les 10 trésors du village. En famille, choisissez votre
+              série d'énigmes — classique ou pimentée — et explorez du centre-bourg jusqu'aux
+              Rousselleries.
             </p>
           </div>
 
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-[#18261E]/10 pt-4">
             <div>
-              <p className="font-mono-num text-xl font-bold text-[#18261E]">10</p>
-              <p className="text-[11px] text-[#526158]">Trésors</p>
+              <p className="font-mono-num text-xl font-bold text-[#18261E]">
+                {QUESTION_SERIES.length}
+              </p>
+              <p className="text-[11px] text-[#526158]">Séries de jeu</p>
             </div>
             <div>
-              <p className="font-mono-num text-xl font-bold text-[#18261E]">3</p>
-              <p className="text-[11px] text-[#526158]">Niveaux d'âge</p>
+              <p className="font-mono-num text-xl font-bold text-[#18261E]">{LEVELS.length}</p>
+              <p className="text-[11px] text-[#526158]">Niveaux</p>
             </div>
             <div>
               <p className="font-mono-num text-xl font-bold text-[#18261E]">
-                {PARTNER_SHOPS.length}
+                {ADVENTURE_STOPS.length}
               </p>
-              <p className="text-[11px] text-[#526158]">Commerces</p>
+              <p className="text-[11px] text-[#526158]">Trésors</p>
             </div>
           </div>
         </div>
@@ -135,6 +161,11 @@ export function SetupScreen({
           <h2 className="font-display mt-0.5 text-lg font-bold text-[#18261E]">
             {existingSession.familyName}
           </h2>
+          {existingSeriesInfo && existingLevelInfo && (
+            <p className="mt-0.5 text-xs text-[#526158]">
+              {existingSeriesInfo.title} · {existingLevelInfo.title}
+            </p>
+          )}
           <div className="mt-3 flex flex-wrap gap-2.5">
             <button
               type="button"
@@ -167,12 +198,12 @@ export function SetupScreen({
             Créer votre équipe
           </h2>
           <p className="mt-0.5 text-xs text-[#526158]">
-            Choisissez votre nom, votre compagnon et votre niveau de difficulté.
+            Choisissez votre série de questions, votre niveau de difficulté et votre compagnon.
           </p>
         </div>
 
         <div className={mobileShell ? "mt-4 space-y-5" : "mt-6 grid gap-8 lg:grid-cols-12"}>
-          <div className={mobileShell ? "space-y-5" : "space-y-6 lg:col-span-5"}>
+          <div className={mobileShell ? "space-y-5" : "space-y-6 lg:col-span-6"}>
             <div>
               <label htmlFor="family-name" className="block text-sm font-semibold text-[#18261E]">
                 Nom de la famille / équipe
@@ -190,10 +221,69 @@ export function SetupScreen({
             </div>
 
             <div>
+              <p className="text-sm font-semibold text-[#18261E]">Série de questions</p>
+              <div className="mt-2 space-y-2">
+                {QUESTION_SERIES.map((series) => {
+                  const selected = seriesId === series.id;
+                  const isSpicy = series.id === "pimentee";
+                  return (
+                    <button
+                      key={series.id}
+                      type="button"
+                      onClick={() => setSeriesId(series.id)}
+                      className={`flex min-h-[60px] w-full cursor-pointer items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition-colors ${
+                        selected
+                          ? isSpicy
+                            ? "border-[#D97706] bg-[#FEF9EC]"
+                            : "border-[#1D6B4A] bg-[#F1F7F4]"
+                          : "border-[#18261E]/12 bg-[#FAF9F5] hover:border-[#18261E]/25"
+                      }`}
+                    >
+                      <div className="flex min-w-0 items-start gap-2.5">
+                        {isSpicy ? (
+                          <Flame className="mt-0.5 h-4 w-4 shrink-0 text-[#D97706]" />
+                        ) : (
+                          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#1D6B4A]" />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-[#18261E]">
+                            {series.title}
+                            <span
+                              className={`ml-1.5 text-xs font-medium ${
+                                isSpicy ? "text-[#B45309]" : "text-[#1D6B4A]"
+                              }`}
+                            >
+                              · {series.subtitle}
+                            </span>
+                          </p>
+                          <p className="mt-0.5 text-xs leading-relaxed text-[#526158]">
+                            {series.description}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                          selected
+                            ? isSpicy
+                              ? "border-[#D97706] bg-[#D97706] text-white"
+                              : "border-[#1D6B4A] bg-[#1D6B4A] text-white"
+                            : "border-[#18261E]/25 bg-white"
+                        }`}
+                      >
+                        {selected && <Check className="h-3 w-3" />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
               <p className="text-sm font-semibold text-[#18261E]">Niveau d'énigmes</p>
               <div className="mt-2 space-y-2">
                 {LEVELS.map((lvl) => {
                   const selected = levelId === lvl.id;
+                  const isExpert = lvl.id === "experts";
                   return (
                     <button
                       key={lvl.id}
@@ -201,21 +291,27 @@ export function SetupScreen({
                       onClick={() => setLevelId(lvl.id)}
                       className={`flex min-h-[52px] w-full cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 text-left transition-colors ${
                         selected
-                          ? "border-[#1D6B4A] bg-[#F1F7F4]"
+                          ? isExpert
+                            ? "border-[#D97706] bg-[#FEF9EC]"
+                            : "border-[#1D6B4A] bg-[#F1F7F4]"
                           : "border-[#18261E]/12 bg-[#FAF9F5] hover:border-[#18261E]/25"
                       }`}
                     >
                       <div>
                         <p className="text-sm font-semibold text-[#18261E]">
                           {lvl.title}{" "}
-                          <span className="font-normal text-[#526158]">· {lvl.ageRange}</span>
+                          <span className="font-normal text-[#526158]">
+                            · {lvl.ageRange} · {lvl.pointMultiplier}× pts
+                          </span>
                         </p>
                         <p className="mt-0.5 text-xs text-[#526158]">{lvl.description}</p>
                       </div>
                       <span
                         className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
                           selected
-                            ? "border-[#1D6B4A] bg-[#1D6B4A] text-white"
+                            ? isExpert
+                              ? "border-[#D97706] bg-[#D97706] text-white"
+                              : "border-[#1D6B4A] bg-[#1D6B4A] text-white"
                             : "border-[#18261E]/25 bg-white"
                         }`}
                       >
@@ -264,7 +360,7 @@ export function SetupScreen({
             </div>
           </div>
 
-          <div className={`flex flex-col justify-between ${mobileShell ? "" : "lg:col-span-7"}`}>
+          <div className={`flex flex-col justify-between ${mobileShell ? "" : "lg:col-span-6"}`}>
             <div>
               <p className="text-sm font-semibold text-[#18261E]">Votre compagnon d'aventure</p>
               <div

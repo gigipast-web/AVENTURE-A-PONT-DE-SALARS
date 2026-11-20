@@ -127,7 +127,9 @@ export function LeaderboardView({
                         {isMine ? " (Vous)" : ""}
                       </p>
                       <p className="truncate text-xs text-[#526158]">
-                        {level.title} · {entry.treasuresFound}/10
+                        {level.shortTitle}
+                        {entry.seriesId === "pimentee" ? " · Défis Pimentés" : ""} ·{" "}
+                        {entry.treasuresFound}/10
                       </p>
                     </div>
                   </div>
@@ -186,7 +188,10 @@ export function LeaderboardView({
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 pr-4 text-xs text-[#526158]">{level.title}</td>
+                      <td className="py-3.5 pr-4 text-xs text-[#526158]">
+                        {level.title}
+                        {entry.seriesId === "pimentee" ? " · Défis Pimentés" : ""}
+                      </td>
                       <td className="font-mono-num py-3.5 pr-4 text-right font-medium text-[#18261E]">
                         {entry.treasuresFound}/10
                       </td>

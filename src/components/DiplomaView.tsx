@@ -1,5 +1,5 @@
 import { ArrowLeft, Award, Printer, RotateCcw, Star } from "lucide-react";
-import { ADVENTURE_STOPS, AVATARS, LEVELS } from "../data/pontDeSalarsData";
+import { ADVENTURE_STOPS, AVATARS, LEVELS, QUESTION_SERIES } from "../data/pontDeSalarsData";
 import type { FamilySession } from "../types/game";
 
 interface DiplomaViewProps {
@@ -39,6 +39,8 @@ export function DiplomaView({
 
   const avatar = AVATARS.find((a) => a.id === session.avatarId) ?? AVATARS[0];
   const level = LEVELS.find((l) => l.id === session.levelId) ?? LEVELS[1];
+  const series =
+    QUESTION_SERIES.find((s) => s.id === (session.seriesId ?? "decouverte")) ?? QUESTION_SERIES[0];
   const completedCount = Object.keys(session.completedStops).length;
   const totalStars = Object.values(session.completedStops).reduce((acc, r) => acc + r.stars, 0);
   const totalScore = Object.values(session.completedStops).reduce(
@@ -121,7 +123,7 @@ export function DiplomaView({
 
           <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-[#526158] sm:text-sm">
             Pour avoir parcouru le village, ses commerces partenaires, le pont sur le Viaur, la
-            chapelle de Salars et le lac jusqu'aux Rousselleries ({level.title}).
+            chapelle de Salars et le lac jusqu'aux Rousselleries ({series.title} · {level.title}).
           </p>
 
           <div className="mx-auto mt-5 flex items-center gap-3.5 rounded-2xl border border-[#18261E]/10 bg-white p-3.5 text-left">
