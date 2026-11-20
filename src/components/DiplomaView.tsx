@@ -163,7 +163,7 @@ export function DiplomaView({
           <div className="mt-5 flex flex-col items-center justify-between gap-2 text-xs text-[#526158] sm:flex-row">
             <span>Pont-de-Salars, le {formattedDate}</span>
             <span className="font-display font-semibold text-[#18261E]">
-              Le Gardien du Viaur
+              L'Escapade de Jos · Le Gardien du Viaur
             </span>
           </div>
         </div>

@@ -200,6 +200,9 @@ export function App() {
         />
 
         <main className="flex-1 overflow-y-auto overscroll-contain">
+          <p className="border-b border-[#18261E]/6 bg-[#F1F3EE]/65 px-4 py-1 text-center text-[11px] font-medium tracking-wide text-[#526158]">
+            Création de L'Escapade de Jos
+          </p>
           {activeTab === "setup" && (
             <SetupScreen
               existingSession={session}
