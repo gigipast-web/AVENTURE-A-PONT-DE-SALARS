@@ -4,7 +4,16 @@ import { registerSW } from "virtual:pwa-register";
 import App from "./App";
 import "./index.css";
 
-registerSW({ immediate: true });
+try {
+  registerSW({
+    immediate: true,
+    onRegisterError() {
+      // Fail silently on restricted WebKit/iframe environments
+    },
+  });
+} catch {
+  // Ignore if ServiceWorker is unsupported in current browser context
+}
 
 const rootEl = document.getElementById("root");
 if (rootEl) {

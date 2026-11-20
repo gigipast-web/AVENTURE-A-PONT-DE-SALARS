@@ -108,7 +108,7 @@ export function MissionModal({
       aria-labelledby="mission-modal-title"
     >
       <div
-        className={`max-h-[90dvh] w-full overflow-y-auto rounded-t-3xl border border-[#18261E]/12 bg-[#FAF9F5] p-5 shadow-2xl ${
+        className={`max-h-[85vh] w-full overflow-y-auto rounded-t-3xl border border-[#18261E]/12 bg-[#FAF9F5] p-5 shadow-2xl ${
           mobileShell ? "max-w-[430px] sm:rounded-3xl" : "max-w-2xl sm:rounded-2xl sm:p-7"
         }`}
       >
@@ -169,14 +169,14 @@ export function MissionModal({
                     onChange={(e) => setVitrineInput(e.target.value)}
                     disabled={vitrineVerified}
                     placeholder={`Code (${stop.vitrineCode})`}
-                    className="h-10 w-full rounded-lg border border-[#18261E]/16 bg-white pr-2.5 pl-9 text-xs font-medium text-[#18261E] uppercase focus:border-[#1D6B4A] focus:outline-none disabled:opacity-70"
+                    className="h-11 w-full rounded-lg border border-[#18261E]/16 bg-white pr-2.5 pl-9 text-base font-medium text-[#18261E] uppercase focus:border-[#1D6B4A] focus:outline-none disabled:opacity-70 sm:text-xs"
                   />
                 </div>
                 {!vitrineVerified && (
                   <button
                     type="button"
                     onClick={handleCheckVitrine}
-                    className="min-h-[40px] cursor-pointer rounded-lg border border-[#1D6B4A] bg-white px-3 py-1.5 text-xs font-semibold text-[#1D6B4A] whitespace-nowrap"
+                    className="min-h-[44px] cursor-pointer rounded-lg border border-[#1D6B4A] bg-white px-3 py-1.5 text-xs font-semibold text-[#1D6B4A] whitespace-nowrap"
                   >
                     Valider
                   </button>

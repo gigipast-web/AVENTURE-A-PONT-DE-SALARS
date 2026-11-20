@@ -110,17 +110,17 @@ export function AdventureMapView({
             </button>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl border border-[#18261E]/12 bg-[#EAE7DC]">
+          <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[#18261E]/12 bg-[#EAE7DC]">
             {!mapError ? (
               <img
                 src={MAP_IMAGE}
                 alt="Carte illustrée de Pont-de-Salars : chapelle de Salars, pont sur le Viaur, commerces du bourg, barrage, lac et plage des Rousselleries"
                 referrerPolicy="no-referrer"
                 onError={() => setMapError(true)}
-                className="block aspect-video w-full object-cover select-none"
+                className="block h-full w-full object-cover select-none"
               />
             ) : (
-              <div className="flex aspect-video w-full flex-col items-center justify-center bg-[#EAE7DC] p-6 text-center">
+              <div className="flex h-full w-full flex-col items-center justify-center bg-[#EAE7DC] p-6 text-center">
                 <Compass className="h-9 w-9 text-[#1D6B4A]" />
                 <p className="mt-2 text-sm font-medium text-[#18261E]">
                   Carte de Pont-de-Salars

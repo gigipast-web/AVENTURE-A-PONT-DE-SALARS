@@ -179,15 +179,15 @@ export function App() {
     <div
       className={
         mobileShell
-          ? "min-h-[100dvh] bg-[#FAF9F5] sm:flex sm:items-center sm:justify-center sm:bg-[#EAECE6] sm:p-4"
-          : "min-h-[100dvh] bg-[#FAF9F5] flex flex-col"
+          ? "min-h-screen bg-[#FAF9F5] sm:flex sm:items-center sm:justify-center sm:bg-[#EAECE6] sm:p-4"
+          : "min-h-screen bg-[#FAF9F5] flex flex-col"
       }
     >
       <div
         className={
           mobileShell
-            ? "flex h-[100dvh] w-full flex-col overflow-hidden bg-[#FAF9F5] text-[#18261E] sm:h-[min(860px,calc(100dvh-2rem))] sm:max-w-[430px] sm:rounded-[28px] sm:border sm:border-[#18261E]/15 sm:shadow-2xl"
-            : "flex min-h-[100dvh] w-full flex-col bg-[#FAF9F5] text-[#18261E]"
+            ? "flex min-h-screen w-full flex-col bg-[#FAF9F5] text-[#18261E] sm:h-[min(860px,calc(100vh-2rem))] sm:min-h-0 sm:max-w-[430px] sm:overflow-hidden sm:rounded-[28px] sm:border sm:border-[#18261E]/15 sm:shadow-2xl"
+            : "flex min-h-screen w-full flex-col bg-[#FAF9F5] text-[#18261E]"
         }
       >
         <TopBar
@@ -199,7 +199,11 @@ export function App() {
           onNavigate={handleNavigate}
         />
 
-        <main className="flex-1 overflow-y-auto overscroll-contain">
+        <main
+          className={`flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] ${
+            mobileShell ? "sm:overflow-y-auto sm:overscroll-contain sm:pb-6" : "md:pb-6"
+          }`}
+        >
           <p className="border-b border-[#18261E]/6 bg-[#F1F3EE]/65 px-4 py-1 text-center text-[11px] font-medium tracking-wide text-[#526158]">
             Création de L'Escapade de Jos
           </p>

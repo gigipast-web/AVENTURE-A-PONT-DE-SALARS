@@ -28,7 +28,7 @@ export function TopBar({
   onNavigate,
 }: TopBarProps) {
   return (
-    <header className="no-print shrink-0 border-b border-[#18261E]/10 bg-[#FAF9F5]/95 backdrop-blur-md">
+    <header className="no-print sticky top-0 z-30 shrink-0 border-b border-[#18261E]/10 bg-[#FAF9F5]/95 backdrop-blur-md">
       <div
         className={`mx-auto flex h-[54px] items-center justify-between gap-3 px-4 ${
           mobileShell ? "" : "max-w-7xl sm:px-6 lg:px-8"
@@ -129,8 +129,8 @@ export function BottomTabBar({ activeTab, mobileShell, onNavigate }: BottomTabBa
 
   return (
     <nav
-      className={`no-print shrink-0 border-t border-[#18261E]/12 bg-[#FAF9F5]/98 pb-[env(safe-area-inset-bottom)] backdrop-blur-md ${
-        mobileShell ? "" : "md:hidden"
+      className={`no-print fixed right-0 bottom-0 left-0 z-30 shrink-0 border-t border-[#18261E]/12 bg-[#FAF9F5]/98 pb-[env(safe-area-inset-bottom)] backdrop-blur-md ${
+        mobileShell ? "sm:static" : "md:hidden"
       }`}
       aria-label="Navigation principale mobile"
     >
