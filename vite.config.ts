@@ -9,6 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+      useCredentials: true,
       includeAssets: [
         "favicon.ico",
         "favicon.png",
