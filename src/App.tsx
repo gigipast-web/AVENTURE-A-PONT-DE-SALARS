@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
-import { ADVENTURE_STOPS, type AdventureStop, type AvatarId, type LevelId } from "./data/pontDeSalarsData";
 import { AdventureMapView } from "./components/AdventureMapView";
 import { DiplomaView } from "./components/DiplomaView";
 import { LeaderboardView } from "./components/LeaderboardView";
 import { MissionModal } from "./components/MissionModal";
 import { SetupScreen } from "./components/SetupScreen";
-import { TopBar } from "./components/TopBar";
+import { BottomTabBar, TopBar } from "./components/TopBar";
 import { TreasuresView } from "./components/TreasuresView";
+import {
+  ADVENTURE_STOPS,
+  type AdventureStop,
+  type AvatarId,
+  type LevelId,
+} from "./data/pontDeSalarsData";
 import type {
   CompletedStopRecord,
   FamilySession,
@@ -36,6 +41,7 @@ export function App() {
   );
   const [activeStop, setActiveStop] = useState<AdventureStop | null>(null);
   const [muted, setMuted] = useState(false);
+  const [mobileShell, setMobileShell] = useState(true);
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [lbLoading, setLbLoading] = useState(false);
@@ -104,7 +110,7 @@ export function App() {
         setLeaderboard(data.entries);
       }
     } catch {
-      // Keep local progress safe even if offline
+      // Offline mode keeps local progress safe
     }
   }, []);
 
@@ -126,14 +132,12 @@ export function App() {
     };
     setSession(next);
     setActiveTab("map");
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCompleteStop = (record: CompletedStopRecord) => {
     setSession((prev) => {
       if (!prev) return prev;
       const existing = prev.completedStops[record.stopId];
-      // Preserve higher score if replayed
       const chosenRecord =
         existing && existing.pointsEarned >= record.pointsEarned ? existing : record;
       const updated: FamilySession = {
@@ -156,7 +160,6 @@ export function App() {
     setSession(null);
     setActiveStop(null);
     setActiveTab("setup");
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleNavigate = (tab: ScreenTab) => {
@@ -170,63 +173,88 @@ export function App() {
     if (tab === "leaderboard") {
       void fetchLeaderboard();
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const treasuresCount = session ? Object.keys(session.completedStops).length : 0;
-
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-[#18261E]">
-      <TopBar
-        activeTab={activeTab}
-        hasStarted={Boolean(session)}
-        treasuresCount={treasuresCount}
-        muted={muted}
-        onToggleMute={() => setMuted((m) => !m)}
-        onNavigate={handleNavigate}
-      />
+    <div
+      className={
+        mobileShell
+          ? "min-h-[100dvh] bg-[#FAF9F5] sm:flex sm:items-center sm:justify-center sm:bg-[#EAECE6] sm:p-4"
+          : "min-h-[100dvh] bg-[#FAF9F5] flex flex-col"
+      }
+    >
+      <div
+        className={
+          mobileShell
+            ? "flex h-[100dvh] w-full flex-col overflow-hidden bg-[#FAF9F5] text-[#18261E] sm:h-[min(860px,calc(100dvh-2rem))] sm:max-w-[430px] sm:rounded-[28px] sm:border sm:border-[#18261E]/15 sm:shadow-2xl"
+            : "flex min-h-[100dvh] w-full flex-col bg-[#FAF9F5] text-[#18261E]"
+        }
+      >
+        <TopBar
+          activeTab={activeTab}
+          mobileShell={mobileShell}
+          muted={muted}
+          onToggleMute={() => setMuted((m) => !m)}
+          onToggleShell={() => setMobileShell((v) => !v)}
+          onNavigate={handleNavigate}
+        />
 
-      <main>
-        {activeTab === "setup" && (
-          <SetupScreen
-            existingSession={session}
-            onStartAdventure={handleStartAdventure}
-            onResumeAdventure={() => setActiveTab("map")}
-            onResetAdventure={handleResetAdventure}
-          />
-        )}
+        <main className="flex-1 overflow-y-auto overscroll-contain">
+          {activeTab === "setup" && (
+            <SetupScreen
+              existingSession={session}
+              mobileShell={mobileShell}
+              onStartAdventure={handleStartAdventure}
+              onResumeAdventure={() => setActiveTab("map")}
+              onResetAdventure={handleResetAdventure}
+            />
+          )}
 
-        {activeTab === "map" && session && (
-          <AdventureMapView
-            session={session}
-            onSelectStop={(stop) => setActiveStop(stop)}
-            onToggleFreeOrder={handleToggleFreeOrder}
-            onOpenDiploma={() => setActiveTab("diploma")}
-          />
-        )}
+          {activeTab === "map" && session && (
+            <AdventureMapView
+              session={session}
+              mobileShell={mobileShell}
+              onSelectStop={(stop) => setActiveStop(stop)}
+              onToggleFreeOrder={handleToggleFreeOrder}
+              onOpenDiploma={() => setActiveTab("diploma")}
+            />
+          )}
 
-        {activeTab === "treasures" && (
-          <TreasuresView session={session} onGoToMap={() => handleNavigate("map")} />
-        )}
+          {activeTab === "treasures" && (
+            <TreasuresView
+              session={session}
+              mobileShell={mobileShell}
+              onGoToMap={() => handleNavigate("map")}
+            />
+          )}
 
-        {activeTab === "leaderboard" && (
-          <LeaderboardView
-            entries={leaderboard}
-            loading={lbLoading}
-            error={lbError}
-            currentTeamId={session?.teamId}
-            onRefresh={() => void fetchLeaderboard()}
-          />
-        )}
+          {activeTab === "leaderboard" && (
+            <LeaderboardView
+              entries={leaderboard}
+              loading={lbLoading}
+              error={lbError}
+              currentTeamId={session?.teamId}
+              mobileShell={mobileShell}
+              onRefresh={() => void fetchLeaderboard()}
+            />
+          )}
 
-        {activeTab === "diploma" && (
-          <DiplomaView
-            session={session}
-            onGoToMap={() => handleNavigate("map")}
-            onStartNewGame={handleResetAdventure}
-          />
-        )}
-      </main>
+          {activeTab === "diploma" && (
+            <DiplomaView
+              session={session}
+              mobileShell={mobileShell}
+              onGoToMap={() => handleNavigate("map")}
+              onStartNewGame={handleResetAdventure}
+            />
+          )}
+        </main>
+
+        <BottomTabBar
+          activeTab={activeTab}
+          mobileShell={mobileShell}
+          onNavigate={handleNavigate}
+        />
+      </div>
 
       {activeStop && session && (
         <MissionModal
@@ -236,6 +264,7 @@ export function App() {
           playStyle={session.playStyle}
           existingRecord={session.completedStops[activeStop.id]}
           muted={muted}
+          mobileShell={mobileShell}
           onClose={() => setActiveStop(null)}
           onComplete={handleCompleteStop}
         />
@@ -243,4 +272,5 @@ export function App() {
     </div>
   );
 }
+
 export default App;

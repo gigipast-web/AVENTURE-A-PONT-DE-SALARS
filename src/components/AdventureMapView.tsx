@@ -11,6 +11,7 @@ import type { FamilySession } from "../types/game";
 
 interface AdventureMapViewProps {
   session: FamilySession;
+  mobileShell: boolean;
   onSelectStop: (stop: AdventureStop) => void;
   onToggleFreeOrder: () => void;
   onOpenDiploma: () => void;
@@ -18,6 +19,7 @@ interface AdventureMapViewProps {
 
 export function AdventureMapView({
   session,
+  mobileShell,
   onSelectStop,
   onToggleFreeOrder,
   onOpenDiploma,
@@ -34,7 +36,6 @@ export function AdventureMapView({
     0,
   );
 
-  // Determine the next recommended stop in order
   const nextStop =
     ADVENTURE_STOPS.find((stop) => !session.completedStops[stop.id]) ?? ADVENTURE_STOPS[9];
 
@@ -45,78 +46,65 @@ export function AdventureMapView({
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-5 pb-24 sm:px-6 lg:px-8 lg:pb-12">
-      <section className="flex flex-col justify-between gap-4 rounded-2xl border border-[#18261E]/10 bg-white p-4 sm:flex-row sm:items-center sm:p-5">
-        <div className="flex items-center gap-3.5">
+    <div
+      className={`mx-auto px-4 pt-4 pb-8 ${
+        mobileShell ? "space-y-4" : "max-w-7xl space-y-6 sm:px-6 sm:pt-5 lg:px-8 lg:pb-12"
+      }`}
+    >
+      <section className="flex items-center justify-between gap-3 rounded-2xl border border-[#18261E]/10 bg-white p-3.5">
+        <div className="flex min-w-0 items-center gap-3">
           <img
             src={avatar.image}
             alt={avatar.name}
             referrerPolicy="no-referrer"
-            className="h-12 w-12 shrink-0 rounded-xl border border-[#18261E]/10 object-cover"
+            className="h-11 w-11 shrink-0 rounded-xl border border-[#18261E]/10 object-cover"
           />
-          <div>
-            <p className="text-xs text-[#526158]">
-              {level.title} · {avatar.name}
-            </p>
-            <h1 className="font-display text-lg font-bold text-[#18261E] sm:text-xl">
+          <div className="min-w-0">
+            <p className="truncate text-[11px] text-[#526158]">{level.title}</p>
+            <h1 className="font-display truncate text-base font-bold text-[#18261E]">
               {session.familyName}
             </h1>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-6 border-t border-[#18261E]/8 pt-3 sm:border-t-0 sm:pt-0">
+        <div className="flex items-center gap-3.5 shrink-0 text-right">
           <div>
-            <p className="text-xs text-[#526158]">Trésors</p>
-            <p className="font-mono-num text-lg font-semibold text-[#18261E]">
-              {completedCount} / {ADVENTURE_STOPS.length}
+            <p className="text-[10px] text-[#526158]">Trésors</p>
+            <p className="font-mono-num text-sm font-bold text-[#18261E]">
+              {completedCount}/10
             </p>
           </div>
           <div>
-            <p className="text-xs text-[#526158]">Étoiles</p>
-            <p className="font-mono-num text-lg font-semibold text-[#D97706]">{totalStars} / 30</p>
+            <p className="text-[10px] text-[#526158]">Étoiles</p>
+            <p className="font-mono-num text-sm font-bold text-[#D97706]">{totalStars}</p>
           </div>
           <div>
-            <p className="text-xs text-[#526158]">Score</p>
-            <p className="font-mono-num text-lg font-semibold text-[#1D6B4A]">{totalScore} pts</p>
+            <p className="text-[10px] text-[#526158]">Score</p>
+            <p className="font-mono-num text-sm font-bold text-[#1D6B4A]">{totalScore}</p>
           </div>
-          {completedCount >= ADVENTURE_STOPS.length && (
-            <button
-              type="button"
-              onClick={onOpenDiploma}
-              className="inline-flex min-h-[42px] cursor-pointer items-center gap-2 rounded-xl bg-[#D97706] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#B45309] whitespace-nowrap"
-            >
-              <Award className="h-4 w-4" />
-              <span>Voir le diplôme</span>
-            </button>
-          )}
         </div>
       </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-12">
-        <section className="lg:col-span-7">
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
-            <div>
-              <h2 className="font-display text-xl font-bold text-[#18261E]">
-                Carte au trésor de Pont-de-Salars
-              </h2>
-              <p className="text-xs text-[#526158]">
-                Touchez une étape numérotée sur la carte pour ouvrir l'énigme correspondante.
-              </p>
-            </div>
+      <div className={mobileShell ? "space-y-4" : "grid gap-6 lg:grid-cols-12"}>
+        <section className={mobileShell ? "" : "lg:col-span-7"}>
+          <div className="flex items-center justify-between gap-2 pb-2.5">
+            <p className="text-xs font-medium text-[#526158]">
+              Touchez un point sur la carte
+            </p>
             <button
               type="button"
               onClick={onToggleFreeOrder}
-              className="inline-flex min-h-[40px] cursor-pointer items-center gap-2 rounded-lg border border-[#18261E]/14 bg-white px-3 py-1.5 text-xs font-medium text-[#18261E] transition-colors hover:border-[#1D6B4A] whitespace-nowrap"
+              className="inline-flex min-h-[38px] cursor-pointer items-center gap-1.5 rounded-lg border border-[#18261E]/14 bg-white px-2.5 py-1 text-xs font-medium text-[#18261E] hover:border-[#1D6B4A] whitespace-nowrap"
             >
               {session.freeOrder ? (
                 <>
                   <Unlock className="h-3.5 w-3.5 text-[#1D6B4A]" />
-                  <span>Parcours libre activé</span>
+                  <span>Parcours libre</span>
                 </>
               ) : (
                 <>
                   <Lock className="h-3.5 w-3.5 text-[#526158]" />
-                  <span>Ordre des étapes</span>
+                  <span>Ordre guidé</span>
                 </>
               )}
             </button>
@@ -133,9 +121,9 @@ export function AdventureMapView({
               />
             ) : (
               <div className="flex aspect-video w-full flex-col items-center justify-center bg-[#EAE7DC] p-6 text-center">
-                <Compass className="h-10 w-10 text-[#1D6B4A]" />
+                <Compass className="h-9 w-9 text-[#1D6B4A]" />
                 <p className="mt-2 text-sm font-medium text-[#18261E]">
-                  Carte interactive de Pont-de-Salars
+                  Carte de Pont-de-Salars
                 </p>
               </div>
             )}
@@ -160,8 +148,8 @@ export function AdventureMapView({
                     x2={next.mapX}
                     y2={next.mapY}
                     stroke={bothDone || pathActive ? "#1D6B4A" : "#18261E"}
-                    strokeOpacity={bothDone ? 0.85 : pathActive ? 0.65 : 0.32}
-                    strokeWidth="0.65"
+                    strokeOpacity={bothDone ? 0.85 : pathActive ? 0.65 : 0.34}
+                    strokeWidth="0.7"
                     strokeDasharray={bothDone ? undefined : "1.4 1.2"}
                     strokeLinecap="round"
                   />
@@ -185,12 +173,12 @@ export function AdventureMapView({
                   aria-label={`Étape ${stop.order} : ${stop.name}${
                     record ? " (terminée)" : unlocked ? " (disponible)" : " (verrouillée)"
                   }`}
-                  className={`group absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D6B4A] disabled:cursor-not-allowed ${
-                    unlocked ? "hover:scale-110 active:scale-95" : "opacity-70"
+                  className={`group absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center transition-transform focus-visible:outline-2 focus-visible:outline-[#1D6B4A] disabled:cursor-not-allowed ${
+                    unlocked ? "active:scale-95" : "opacity-75"
                   }`}
                 >
                   <span
-                    className={`flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-bold shadow-md sm:h-10 sm:w-10 ${
+                    className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-[11px] font-bold shadow-md sm:h-8 sm:w-8 ${
                       record
                         ? "border-white bg-[#1D6B4A] text-white"
                         : isCurrent
@@ -201,83 +189,60 @@ export function AdventureMapView({
                     }`}
                   >
                     {record ? (
-                      <Check className="h-4 w-4 stroke-[2.75]" />
+                      <Check className="h-3.5 w-3.5 stroke-[2.75]" />
                     ) : (
                       <span className="font-mono-num">{stop.order}</span>
                     )}
-                  </span>
-
-                  <span className="pointer-events-none absolute top-full left-1/2 mt-1 hidden -translate-x-1/2 rounded-md bg-[#18261E] px-2 py-0.5 text-[11px] font-medium text-white whitespace-nowrap shadow-sm group-hover:block">
-                    {stop.shortName}
                   </span>
                 </button>
               );
             })}
           </div>
-
-          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[#526158]">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-full bg-[#D97706]" />
-              Prochaine mission
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-full bg-[#1D6B4A]" />
-              Trésor trouvé
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-full border border-[#18261E] bg-white" />
-              Étape accessible
-            </span>
-          </div>
         </section>
 
-        <aside className="flex flex-col gap-4 lg:col-span-5">
+        <aside className={`flex flex-col gap-4 ${mobileShell ? "" : "lg:col-span-5"}`}>
           {completedCount < ADVENTURE_STOPS.length ? (
-            <div className="rounded-2xl border border-[#1D6B4A]/25 bg-white p-5">
+            <div className="rounded-2xl border border-[#1D6B4A]/25 bg-white p-4">
               <p className="text-xs font-semibold text-[#1D6B4A]">
-                Prochaine étape recommandée · Étape {String(nextStop.order).padStart(2, "0")}
+                Prochaine mission · Étape {String(nextStop.order).padStart(2, "0")}
               </p>
-              <h3 className="font-display mt-1 text-xl font-bold text-[#18261E]">
+              <h2 className="font-display mt-0.5 text-lg font-bold text-[#18261E]">
                 {nextStop.name}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#526158]">
+              </h2>
+              <p className="mt-1.5 text-xs leading-relaxed text-[#526158]">
                 {nextStop.storyIntro}
               </p>
               <button
                 type="button"
                 onClick={() => onSelectStop(nextStop)}
-                className="mt-4 inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D6B4A] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#16553A]"
+                className="mt-3.5 inline-flex min-h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D6B4A] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#16553A]"
               >
                 <MapPin className="h-4 w-4" />
-                <span>Ouvrir la mission {nextStop.order}</span>
+                <span>Ouvrir l'étape {nextStop.order}</span>
               </button>
             </div>
           ) : (
-            <div className="rounded-2xl border border-[#D97706]/35 bg-white p-5">
-              <p className="text-xs font-semibold text-[#D97706]">Quête accomplie</p>
-              <h3 className="font-display mt-1 text-xl font-bold text-[#18261E]">
-                Les 10 trésors de Pont-de-Salars sont réunis !
-              </h3>
-              <p className="mt-2 text-sm text-[#526158]">
-                Bravo {session.familyName} ! Vous pouvez maintenant afficher et imprimer votre
-                diplôme officiel de Grand Explorateur.
-              </p>
+            <div className="rounded-2xl border border-[#D97706]/35 bg-white p-4">
+              <p className="text-xs font-semibold text-[#D97706]">Quête terminée</p>
+              <h2 className="font-display mt-0.5 text-lg font-bold text-[#18261E]">
+                Les 10 trésors sont réunis !
+              </h2>
               <button
                 type="button"
                 onClick={onOpenDiploma}
-                className="mt-4 inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#D97706] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#B45309]"
+                className="mt-3 inline-flex min-h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#D97706] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#B45309]"
               >
                 <Award className="h-4 w-4" />
-                <span>Obtenir notre diplôme</span>
+                <span>Afficher notre diplôme</span>
               </button>
             </div>
           )}
 
-          <div className="rounded-2xl border border-[#18261E]/10 bg-white p-4 sm:p-5">
-            <h3 className="font-display text-lg font-bold text-[#18261E]">
-              Les 10 étapes du village
+          <div className="rounded-2xl border border-[#18261E]/10 bg-white p-4">
+            <h3 className="font-display text-base font-bold text-[#18261E]">
+              Les 10 étapes du parcours
             </h3>
-            <div className="mt-3 max-h-[380px] divide-y divide-[#18261E]/8 overflow-y-auto pr-1">
+            <div className="mt-2 divide-y divide-[#18261E]/8">
               {ADVENTURE_STOPS.map((stop) => {
                 const record = session.completedStops[stop.id];
                 const unlocked = isStopUnlocked(stop);
@@ -287,9 +252,7 @@ export function AdventureMapView({
                     type="button"
                     disabled={!unlocked}
                     onClick={() => unlocked && onSelectStop(stop)}
-                    className={`flex min-h-[58px] w-full cursor-pointer items-center justify-between gap-3 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-55 ${
-                      unlocked ? "hover:bg-[#FAF9F5]" : ""
-                    }`}
+                    className="flex min-h-[56px] w-full cursor-pointer items-center justify-between gap-3 py-2.5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-55"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <span
@@ -304,21 +267,21 @@ export function AdventureMapView({
                         {record ? <Check className="h-4 w-4" /> : stop.order}
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-[#18261E]">{stop.name}</p>
-                        <p className="truncate text-xs text-[#526158]">
-                          {stop.categoryLabel} · {stop.missionSummary}
+                        <p className="truncate text-sm font-semibold text-[#18261E]">
+                          {stop.shortName}
                         </p>
+                        <p className="truncate text-xs text-[#526158]">{stop.missionSummary}</p>
                       </div>
                     </div>
 
-                    <div className="shrink-0 text-right">
+                    <div className="shrink-0">
                       {record ? (
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#D97706]">
                           <Star className="h-3.5 w-3.5 fill-current" />
                           <span className="font-mono-num">{record.stars}/3</span>
                         </span>
                       ) : unlocked ? (
-                        <span className="text-xs font-semibold text-[#1D6B4A]">Jouer</span>
+                        <span className="text-xs font-semibold text-[#1D6B4A]">Ouvrir</span>
                       ) : (
                         <Lock className="h-3.5 w-3.5 text-[#526158]" />
                       )}
