@@ -36,6 +36,62 @@
   scrollbar-width: none;
 }
 
+@keyframes christmas-snowfall {
+  0% {
+    transform: translate3d(0, -12px, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  85% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(14px, 210px, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes christmas-snowfall-page {
+  0% {
+    transform: translate3d(0, -16px, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.75;
+  }
+  88% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate3d(20px, 780px, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes christmas-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.animate-snowfall {
+  animation: christmas-snowfall linear infinite;
+}
+
+.animate-snowfall-page {
+  animation: christmas-snowfall-page linear infinite;
+}
+
+.animate-twinkle {
+  animation: christmas-twinkle 2.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

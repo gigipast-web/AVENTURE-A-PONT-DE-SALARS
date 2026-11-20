@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { AdventureMapView } from "./components/AdventureMapView";
+import { ChristmasGameView } from "./components/ChristmasGameView";
 import { DiplomaView } from "./components/DiplomaView";
 import { LeaderboardView } from "./components/LeaderboardView";
 import { MissionModal } from "./components/MissionModal";
@@ -246,6 +247,7 @@ export function App() {
               onStartAdventure={handleStartAdventure}
               onResumeAdventure={() => setActiveTab("map")}
               onResetAdventure={handleResetAdventure}
+              onOpenChristmasGame={() => setActiveTab("noel")}
             />
           )}
 
@@ -284,6 +286,14 @@ export function App() {
               mobileShell={mobileShell}
               onGoToMap={() => handleNavigate("map")}
               onStartNewGame={handleResetAdventure}
+            />
+          )}
+
+          {activeTab === "noel" && (
+            <ChristmasGameView
+              mobileShell={mobileShell}
+              muted={muted}
+              onBack={() => setActiveTab(session ? "map" : "setup")}
             />
           )}
         </main>

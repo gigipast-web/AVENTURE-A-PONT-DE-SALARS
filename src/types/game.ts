@@ -1,6 +1,6 @@
 import type { AvatarId, LevelId, SeriesId } from "../data/pontDeSalarsData";
 
-export type ScreenTab = "setup" | "map" | "treasures" | "leaderboard" | "diploma";
+export type ScreenTab = "setup" | "map" | "treasures" | "leaderboard" | "diploma" | "noel";
 
 export type PlayStyle = "libre" | "commerces";
 

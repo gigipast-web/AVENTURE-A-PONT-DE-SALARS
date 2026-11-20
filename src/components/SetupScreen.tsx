@@ -4,12 +4,15 @@ import {
   Check,
   Compass,
   Flame,
+  Gift,
   MapPin,
   QrCode,
   RotateCcw,
   Sparkles,
   Store,
+  TreePine,
 } from "lucide-react";
+import { ChristmasGarlandBanner } from "./ChristmasDecorations";
 import {
   ADVENTURE_STOPS,
   AVATARS,
@@ -35,6 +38,7 @@ interface SetupScreenProps {
   }) => void;
   onResumeAdventure: () => void;
   onResetAdventure: () => void;
+  onOpenChristmasGame: () => void;
 }
 
 export function SetupScreen({
@@ -43,6 +47,7 @@ export function SetupScreen({
   onStartAdventure,
   onResumeAdventure,
   onResetAdventure,
+  onOpenChristmasGame,
 }: SetupScreenProps) {
   const [familyName, setFamilyName] = useState(existingSession?.familyName ?? "");
   const [avatarId, setAvatarId] = useState<AvatarId>(existingSession?.avatarId ?? "renard");
@@ -458,6 +463,40 @@ export function SetupScreen({
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-[#14532D]/25 bg-white">
+        <div className="bg-[#FAF9F5]">
+          <ChristmasGarlandBanner compact />
+        </div>
+        <div className="flex flex-col justify-between gap-3 p-4 sm:flex-row sm:items-center sm:px-5 sm:py-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FEF2F2] text-[#B91C1C]">
+              <TreePine className="h-6 w-6 text-[#14532D]" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-[#B91C1C]">
+                Édition festive · Décorations & mini-jeux d'hiver
+              </p>
+              <h2 className="font-display text-lg font-bold text-[#18261E]">
+                Le Noël Magique de Pont-de-Salars
+              </h2>
+              <p className="mt-0.5 text-xs text-[#526158]">
+                Décorez le sapin du village avec le quiz de Noël ou attrapez les cadeaux qui tombent
+                sur le pont enneigé.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenChristmasGame}
+            className="inline-flex min-h-[46px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#B91C1C] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#991B1B] whitespace-nowrap"
+          >
+            <Gift className="h-4 w-4" />
+            <span>Jouer au jeu de Noël</span>
+          </button>
         </div>
       </section>
     </div>

@@ -1,4 +1,15 @@
-import { Award, Compass, Gem, Home, Maximize2, Smartphone, Trophy, Volume2, VolumeX } from "lucide-react";
+import {
+  Award,
+  Compass,
+  Gem,
+  Home,
+  Maximize2,
+  Smartphone,
+  TreePine,
+  Trophy,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import type { ScreenTab } from "../types/game";
 import { OfflineIndicator, PWAInstallButton } from "./PWAInstallButton";
 
@@ -17,6 +28,7 @@ const TAB_TITLES: Record<ScreenTab, string> = {
   treasures: "Trésors & Commerces",
   leaderboard: "Classement",
   diploma: "Mon Diplôme",
+  noel: "Jeu de Noël",
 };
 
 export function TopBar({
@@ -51,6 +63,7 @@ export function TopBar({
                 { id: "treasures", label: "Trésors" },
                 { id: "leaderboard", label: "Classement" },
                 { id: "diploma", label: "Diplôme" },
+                { id: "noel", label: "Noël" },
               ] as const
             ).map((item) => {
               const isActive = activeTab === item.id;
@@ -61,7 +74,9 @@ export function TopBar({
                   onClick={() => onNavigate(item.id)}
                   className={`cursor-pointer border-b-2 py-1 text-sm font-medium transition-colors whitespace-nowrap shrink-0 ${
                     isActive
-                      ? "border-[#1D6B4A] text-[#18261E]"
+                      ? item.id === "noel"
+                        ? "border-[#B91C1C] text-[#B91C1C]"
+                        : "border-[#1D6B4A] text-[#18261E]"
                       : "border-transparent text-[#526158] hover:text-[#18261E]"
                   }`}
                 >
@@ -125,6 +140,7 @@ export function BottomTabBar({ activeTab, mobileShell, onNavigate }: BottomTabBa
     { id: "treasures", label: "Trésors", icon: Gem },
     { id: "leaderboard", label: "Classement", icon: Trophy },
     { id: "diploma", label: "Diplôme", icon: Award },
+    { id: "noel", label: "Noël", icon: TreePine },
   ];
 
   return (
@@ -134,20 +150,27 @@ export function BottomTabBar({ activeTab, mobileShell, onNavigate }: BottomTabBa
       }`}
       aria-label="Navigation principale mobile"
     >
-      <div className="grid h-[60px] grid-cols-5 items-center">
+      <div className="grid h-[60px] grid-cols-6 items-center">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
+          const isNoel = item.id === "noel";
           return (
             <button
               key={item.id}
               type="button"
               onClick={() => onNavigate(item.id)}
               className={`flex min-h-[44px] cursor-pointer flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors ${
-                isActive ? "font-semibold text-[#1D6B4A]" : "text-[#526158]"
+                isActive
+                  ? isNoel
+                    ? "font-semibold text-[#B91C1C]"
+                    : "font-semibold text-[#1D6B4A]"
+                  : isNoel
+                    ? "text-[#B91C1C]/85"
+                    : "text-[#526158]"
               }`}
             >
-              <Icon className="h-5 w-5" strokeWidth={isActive ? 2.4 : 1.8} />
+              <Icon className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.4 : 1.9} />
               <span className="whitespace-nowrap">{item.label}</span>
             </button>
           );
